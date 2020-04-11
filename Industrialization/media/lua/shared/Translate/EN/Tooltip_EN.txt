@@ -1,0 +1,11 @@
+Tooltip_EN = {
+    
+    ----- Tooltip (English) -----
+    
+	-- Item tooltip
+	Tooltip_Industrialization_item_Damaged = "Damaged",
+    
+	-- Crafting tooltip
+	Tooltip_Industrialization_craft_AutoMinerDesc = "A machine that automatically can mine for you.",
+    
+}

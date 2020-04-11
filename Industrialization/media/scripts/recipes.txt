@@ -1,0 +1,26 @@
+module WaterCollectingMetalDrums
+{
+	imports
+    {
+        Base
+    }
+	
+	/************** Water Collecting Metal Drums **************/
+	
+	recipe Make Metal Drum
+    {
+       SheetMetal=4,
+       BlowTorch=10,
+       WeldingRods=3,
+       Screws=4,
+       keep WeldingMask,
+       keep Screwdriver,
+        
+       Result:MetalDrum,
+       Time:250.0,
+       Category:Welding,
+       SkillRequired:MetalWelding=3,
+       OnGiveXP:Give25BSXP,
+    }
+	
+}

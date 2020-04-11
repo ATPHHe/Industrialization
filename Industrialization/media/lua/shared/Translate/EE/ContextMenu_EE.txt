@@ -1,0 +1,25 @@
+ContextMenu_EN = {
+    
+    ----- ContextMenu (English - EE) -----
+    
+    -- Industrialization Menu
+    ContextMenu_Industrialization_Menu = "Industrialization Menu",
+    
+    -- Category: Power
+    ContextMenu_Industrialization_Category_Power = "Power",
+    
+    -- Category: Wiring
+    ContextMenu_Industrialization_Category_Wiring = "Wiring",
+    
+    -- Category: Mining
+    ContextMenu_Industrialization_Category_Mining = "Mining",
+    ContextMenu_Industrialization_Small_Auto_Miner = "Small Auto Miner",
+    ContextMenu_Industrialization_Large_Auto_Miner = "Large Auto Miner",
+    
+    -- Category: Farming
+    ContextMenu_Industrialization_Category_Farming = "Farming",
+    
+    -- Category: Turrets
+    ContextMenu_Industrialization_Category_Turrets = "Turrets",
+    
+}
