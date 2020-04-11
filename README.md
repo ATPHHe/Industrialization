@@ -1,2 +1,2 @@
 # Industrialization
-Mod for Project Zomboid
+WIP Mod for Project Zomboid
