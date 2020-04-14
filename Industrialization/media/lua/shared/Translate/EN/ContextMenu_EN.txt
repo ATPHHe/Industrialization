@@ -5,21 +5,26 @@ ContextMenu_EN = {
     -- Industrialization Menu
     ContextMenu_Industrialization_Menu = "Industrialization Menu",
     
-    -- Category: Power
-    ContextMenu_Industrialization_Category_Power = "Power",
+    -- BuildCategory: All
+    ContextMenu_Industrialization_BuildCategory_All = "All",
+    ContextMenu_Industrialization_Fix = "Fix",
+    ContextMenu_Industrialization_Repair = "Repair",
     
-    -- Category: Wiring
-    ContextMenu_Industrialization_Category_Wiring = "Wiring",
+    -- BuildCategory: Power
+    ContextMenu_Industrialization_BuildCategory_Power = "Power",
     
-    -- Category: Mining
-    ContextMenu_Industrialization_Category_Mining = "Mining",
-    ContextMenu_Industrialization_Small_Auto_Miner = "Small Auto Miner",
-    ContextMenu_Industrialization_Large_Auto_Miner = "Large Auto Miner",
+    -- BuildCategory: Wiring
+    ContextMenu_Industrialization_BuildCategory_Wiring = "Wiring",
     
-    -- Category: Farming
-    ContextMenu_Industrialization_Category_Farming = "Farming",
+    -- BuildCategory: Mining
+    ContextMenu_Industrialization_BuildCategory_Mining = "Mining",
+    ContextMenu_Industrialization_SmallAutoMiner = "Small Auto Miner",
+    ContextMenu_Industrialization_LargeAutoMiner = "Large Auto Miner",
     
-    -- Category: Turrets
-    ContextMenu_Industrialization_Category_Turrets = "Turrets",
+    -- BuildCategory: Farming
+    ContextMenu_Industrialization_BuildCategory_Farming = "Farming",
+    
+    -- BuildCategory: Turrets
+    ContextMenu_Industrialization_BuildCategory_Turrets = "Turrets",
     
 }

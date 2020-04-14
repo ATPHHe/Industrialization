@@ -1,0 +1,34 @@
+IGUI_EN = {
+    
+	-- All the UI text used in game
+    
+    ----- IGUI_EN (English) -----
+    
+    -- Category: All
+    IGUI_Industrialization_MachineNeedRepair = "This machine is damaged and can only be repaired while turned off.",
+    
+    IGUI_Industrialization_isToxic = "Will fill the building with toxic fumes when operated here.",
+    
+    IGUI_Industrialization_HealthPercent = "Health: %1%",
+    IGUI_Industrialization_Health = "Health: %1",
+    IGUI_Industrialization_isOn = "Is On: %1",
+    IGUI_Industrialization_hasPower = "Has Power: %1"
+    IGUI_Industrialization_isWired = "Is Wired: %1",
+    
+    -- Category: Power
+    
+    
+    -- Category: Wiring
+    
+    
+    -- Category: Mining
+    
+    
+    -- Category: Farming
+    
+    
+    -- Category: Turrets
+    
+    
+}
+

@@ -20,7 +20,7 @@ ISWorldObjectContextMenu.clearFetch = function()
     
     ---------------------------------
     -- write modified function here
-    industrializationAutoMiner = nil
+    industrializationSmallAutoMiner = nil
     
     ---------------------------------
 end
@@ -34,8 +34,8 @@ ISWorldObjectContextMenu.fetch = function(v, player, doSquare)
 	--local playerInv = playerObj:getInventory()
     --local square = v:getSquare()
     
-    if v:getName() == "Industrialization Small Auto Miner" then
-        industrializationAutoMiner = v;
+    if v:getName() == IsoSmallAutoMiner.FULL_NAME then
+        industrializationSmallAutoMiner = v;
     end
     ---------------------------------
     
@@ -43,6 +43,59 @@ ISWorldObjectContextMenu.fetch = function(v, player, doSquare)
     original_fetch(v, player, doSquare)
     
 end
+
+local function createMenu(player, context, worldobjects, test)
+    local playerObj = getSpecificPlayer(player)
+	local playerInv = playerObj:getInventory()
+    
+    
+    
+    -- SmallAutoMiner interaction
+    if industrializationSmallAutoMiner then
+        if test == true then return true; end
+        
+        local luaObject = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(industrializationSmallAutoMiner:getSquare())
+        
+        --local healthPercent = (object:getHealth() / object:getMaxHealth()) * 100
+        local isOn = (luaObject and luaObject.isOn ~= nil)         and luaObject.isOn      or industrializationSmallAutoMiner:getModData().isOn
+        --local hasPower = (luaObject and luaObject.hasPower ~= nil) and luaObject.hasPower  or industrializationSmallAutoMiner:getModData().hasPower
+        --local isWired = (luaObject and luaObject.isWired ~= nil)   and luaObject.isWired   or industrializationSmallAutoMiner:getModData().isWired
+        
+        local option = context:addOption(getText("ContextMenu_Industrialization_SmallAutoMiner").. " " ..getText("ContextMenu_Info"), 
+                                            worldobjects, ISWorldObjectContextMenu.onInfoMachine, industrializationSmallAutoMiner, player);
+        
+        if playerObj:DistToSquared(industrializationSmallAutoMiner:getX() + 0.5, industrializationSmallAutoMiner:getY() + 0.5) < 2 * 2 then
+            local tooltip = ISWorldObjectContextMenu.addToolTip()
+            tooltip:setName(getText("ContextMenu_Industrialization_SmallAutoMiner"))
+            tooltip.description = ISMachineInfoWindow.getRichText(industrializationSmallAutoMiner, true)
+            option.toolTip = tooltip
+        end
+        
+        if isOn then
+            context:addOption(getText("ContextMenu_Turn_Off"), worldobjects, ISWorldObjectContextMenu.onActivateMachine, false, industrializationSmallAutoMiner, player);
+        else
+            context:addOption(getText("ContextMenu_Turn_On"), worldobjects, ISWorldObjectContextMenu.onActivateMachine, true, industrializationSmallAutoMiner, player);
+        end
+        
+        if not isOn and industrializationSmallAutoMiner:getHealth() < industrializationSmallAutoMiner:getMaxHealth() then
+                
+            local option = context:addOption(getText("ContextMenu_Industrialization_Repair").. " " ..getText("ContextMenu_Industrialization_SmallAutoMiner"), 
+                                            worldobjects, ISWorldObjectContextMenu.onFixMachine, industrializationSmallAutoMiner, player);
+            if not playerObj:getInventory():contains("ElectronicsScrap") then
+                local tooltip = ISWorldObjectContextMenu.addToolTip();
+                option.notAvailable = true;
+                tooltip.description = getText("ContextMenu_GeneratorFixTT");
+                option.toolTip = tooltip;
+            end
+            
+        end
+    end
+    
+    --if generator then
+    --    print("FUEL: "..generator:getFuel())
+    --end
+end
+Events.OnPreFillWorldObjectContextMenu.Add(createMenu)
 
 --[[local original_isSomethingTo = ISWorldObjectContextMenu.isSomethingTo
 ISWorldObjectContextMenu.isSomethingTo = function(item, player)
@@ -104,80 +157,54 @@ end]]
 	end
 	return false
 end
-
-ISWorldObjectContextMenu.onInfoGenerator = function(worldobjects, generator, player)
+--]]
+ISWorldObjectContextMenu.onInfoMachine = function(worldobjects, machine, player)
 	local playerObj = getSpecificPlayer(player)
-	if luautils.walkAdj(playerObj, generator:getSquare()) then
-		ISTimedActionQueue.add(ISGeneratorInfoAction:new(playerObj, generator))
+	if luautils.walkAdj(playerObj, machine:getSquare()) then
+		ISTimedActionQueue.add(ISMachineInfoAction:new(playerObj, machine))
 	end
 end
 
-ISWorldObjectContextMenu.onPlugGenerator = function(worldobjects, generator, player, plug)
+--[[ISWorldObjectContextMenu.onPlugMachine = function(worldobjects, machine, player, plug)
 	local playerObj = getSpecificPlayer(player)
-	if luautils.walkAdj(playerObj, generator:getSquare()) then
-		ISTimedActionQueue.add(ISPlugGenerator:new(player, generator, plug, 300));
+	if luautils.walkAdj(playerObj, machine:getSquare()) then
+		ISTimedActionQueue.add(ISPlugMachine:new(player, machine, plug, 300));
+	end
+end]]
+
+ISWorldObjectContextMenu.onActivateMachine = function(worldobjects, enable, machine, player)
+	local playerObj = getSpecificPlayer(player)
+	if luautils.walkAdj(playerObj, machine:getSquare()) then
+		ISTimedActionQueue.add(ISActivateMachine:new(player, machine, enable, 30));
 	end
 end
 
-ISWorldObjectContextMenu.onActivateGenerator = function(worldobjects, enable, generator, player)
+ISWorldObjectContextMenu.onFixMachine = function(worldobjects, machine, player)
 	local playerObj = getSpecificPlayer(player)
-	if luautils.walkAdj(playerObj, generator:getSquare()) then
-		ISTimedActionQueue.add(ISActivateGenerator:new(player, generator, enable, 30));
+	if luautils.walkAdj(playerObj, machine:getSquare()) then
+		ISTimedActionQueue.add(ISFixMachine:new(getSpecificPlayer(player), machine, 150));
 	end
 end
 
-ISWorldObjectContextMenu.onFixGenerator = function(worldobjects, generator, player)
+--[[ISWorldObjectContextMenu.onAddFuelToMachine = function(worldobjects, petrolCan, machine, player)
 	local playerObj = getSpecificPlayer(player)
-	if luautils.walkAdj(playerObj, generator:getSquare()) then
-		ISTimedActionQueue.add(ISFixGenerator:new(getSpecificPlayer(player), generator, 150));
+	if luautils.walkAdj(playerObj, machine:getSquare()) then
+		ISTimedActionQueue.add(ISAddFuel:new(player, machine, petrolCan, 70 + (petrolCan:getUsedDelta() * 40)));
 	end
 end
 
-ISWorldObjectContextMenu.onAddFuel = function(worldobjects, petrolCan, generator, player)
+ISWorldObjectContextMenu.onTakeMachine = function(worldobjects, machine, player)
 	local playerObj = getSpecificPlayer(player)
-	if luautils.walkAdj(playerObj, generator:getSquare()) then
-		ISTimedActionQueue.add(ISAddFuel:new(player, generator, petrolCan, 70 + (petrolCan:getUsedDelta() * 40)));
+	if luautils.walkAdj(playerObj, machine:getSquare()) then
+		ISTimedActionQueue.add(ISTakeMachine:new(player, machine, 100));
 	end
-end
-
-ISWorldObjectContextMenu.onTakeGenerator = function(worldobjects, generator, player)
-	local playerObj = getSpecificPlayer(player)
-	if luautils.walkAdj(playerObj, generator:getSquare()) then
-		ISTimedActionQueue.add(ISTakeGenerator:new(player, generator, 100));
-	end
-end
+end]]
 
 -- maps object:getName() -> translated label
-local ThumpableNameToLabel = {
-	["Bar"] = "ContextMenu_Bar",
-	["Barbed Fence"] = "ContextMenu_Barbed_Fence",
-	["Bed"] = "ContextMenu_Bed",
-	["Bookcase"] = "ContextMenu_Bookcase",
-	["Double Shelves"] = "ContextMenu_DoubleShelves",
-	["Gravel Bag Wall"] = "ContextMenu_Gravel_Bag_Wall",
-	["Lamp on Pillar"] = "ContextMenu_Lamp_on_Pillar",
-	["Large Table"] = "ContextMenu_Large_Table",
-	["Log Wall"] = "ContextMenu_Log_Wall",
-	["Rain Collector Barrel"] = "ContextMenu_Rain_Collector_Barrel",
-	["Sand Bag Wall"] = "ContextMenu_Sang_Bag_Wall",
-	["Shelves"] = "ContextMenu_Shelves",
-	["Small Bookcase"] = "ContextMenu_SmallBookcase",
-	["Small Table"] = "ContextMenu_Small_Table",
-	["Small Table with Drawer"] = "ContextMenu_Table_with_Drawer",
-	["Window Frame"] = "ContextMenu_Windows_Frame",
-	["Wooden Crate"] = "ContextMenu_Wooden_Crate",
-	["Wooden Door"] = "ContextMenu_Door",
-	["Wooden Fence"] = "ContextMenu_Wooden_Fence",
-	["Wooden Stairs"] = "ContextMenu_Stairs",
-	["Wooden Stake"] = "ContextMenu_Wooden_Stake",
-	["Wooden Wall"] = "ContextMenu_Wooden_Wall",
-	["Wooden Pillar"] = "ContextMenu_Wooden_Pillar",
-	["Wooden Chair"] = "ContextMenu_Wooden_Chair",
-	["Wooden Stairs"] = "ContextMenu_Stairs",
-	["Wooden Sign"] = "ContextMenu_Sign",
-	["Wooden Door Frame"] = "ContextMenu_Door_Frame",
-}
-
+--[[local ThumpableNameToLabel = {
+	["Industrialization Small Auto Miner"] = "ContextMenu_Industrialization_SmallAutoMiner",
+}]]
+--[[
 function ISWorldObjectContextMenu.getThumpableName(thump)
 	if ThumpableNameToLabel[thump:getName()] then
 		return getText(ThumpableNameToLabel[thump:getName()])
@@ -232,5 +259,5 @@ ISWorldObjectContextMenu.onLightBattery = function(worldobjects, light, player, 
             ISTimedActionQueue.add(ISLightActions:new("AddBattery",playerObj, light, battery));
         end
     end
-end]]
-
+end
+--]]
