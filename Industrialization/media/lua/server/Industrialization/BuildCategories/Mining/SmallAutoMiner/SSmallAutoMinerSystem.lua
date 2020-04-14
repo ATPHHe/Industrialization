@@ -130,7 +130,7 @@ function SSmallAutoMinerSystem:tryToLoot()
                             local roll = ZombRandFloat(0, 100)
                             if roll < percentChance then
                             
-                                local randomAmount = ZombRand(MAX_LOOT, MIN_LOOT)
+                                local randomAmount = ZombRand(MAX_LOOT + 1, MIN_LOOT)
                                 for i=1, randomAmount do
                                     local item = InventoryItemFactory.CreateItem(itemName)
                                     if (item:getWeight() + luaObject.container:getCapacityWeight() <= luaObject.container:getCapacity()) then
