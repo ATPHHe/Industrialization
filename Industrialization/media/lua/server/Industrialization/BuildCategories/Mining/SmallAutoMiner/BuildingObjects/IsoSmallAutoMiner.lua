@@ -159,7 +159,7 @@ function IsoSmallAutoMiner:isValid(square)
         return false end;
     
     -- height check (prevents building this miner on high elevations)
-    --if math.floor(square:getZ()) > 0 then return false end
+    if math.floor(square:getZ()) > 0 then return false end
     
     -- other checks
 	if square:isSolid() or square:isSolidTrans() then return false end
