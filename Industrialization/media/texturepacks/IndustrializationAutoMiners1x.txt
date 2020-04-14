@@ -1,0 +1,12 @@
+version = 0
+settings
+{
+    packFileName = IndustrializationAutoMiners1x.pack
+    outputImageSize = 1024,1024
+    scale50 = true
+    inputImageDirectory
+    {
+        path = IndustrializationAutoMiners1x.create
+        imagesAreTilesheets = false
+    }
+}

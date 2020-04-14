@@ -1,0 +1,26 @@
+
+Encoding Notes:
+
+Afrikaans - AF: ANSI
+Español-Argentina - AR --> ES: ANSI
+Chinese/Mandarin (Traditional) - CH: Big5 (Traditional)
+Chinese/Mandarin (Simplified) - CN: UTF-8
+Czech - CS: ANSI
+Danish - DA: ANSI
+German - DE: ANSI
+EE --> EN: UTF-8
+English - EN: UTF-8
+Español - ES: ANSI
+French - FR: ANSI
+Hungarian - HU: ANSI
+Italian - IT: ANSI
+Japanese - JP: UTF-8-BOM
+Korean - KO: UCS-2 LE BOM
+Dutch - NL: ANSI
+Norwegian - NO: ANSI
+Polish - PL: ANSI
+Portuguese - PT: ANSI
+Portuguese-Brazil - PT-BR PTBR: ANSI
+Russian - RU: Windows-1251
+Thai - TH: UTF-8
+Turkish - TR: ANSI
