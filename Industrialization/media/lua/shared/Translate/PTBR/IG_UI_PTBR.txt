@@ -1,0 +1,34 @@
+IGUI_PTBR = {
+    
+	-- All the UI text used in game
+    
+    ----- IGUI_PTBR (Portugues Brasil) -----
+    
+    -- Category: All
+    IGUI_Industrialization_MachineNeedRepair = "Esta maquina esta danificada e so pode ser reparada quando desligada.",
+    
+    IGUI_Industrialization_isToxic = "Enchera o edificio com vapores toxicos quando operado aqui.",
+    
+    IGUI_Industrialization_HealthPercent = "Vida: %1%",
+    IGUI_Industrialization_Health = "Vida: %1",
+    IGUI_Industrialization_isOn = "Esta Ligado: %1",
+    IGUI_Industrialization_hasPower = "Tem Energia: %1"
+    IGUI_Industrialization_isWired = "Esta com Fio: %1",
+    
+    -- Category: Power
+    
+    
+    -- Category: Wiring
+    
+    
+    -- Category: Mining
+    
+    
+    -- Category: Farming
+    
+    
+    -- Category: Turrets
+    
+    
+}
+

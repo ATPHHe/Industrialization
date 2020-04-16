@@ -23,7 +23,7 @@ end
 
 function ISMachineInfoWindow:update()
 	ISCollapsableWindow.update(self)
-
+    
 	if self:getIsVisible() and (not self.object or self.object:getObjectIndex() == -1) then
 		if self.joyfocus then
 			self.joyfocus.focus = nil
@@ -33,53 +33,56 @@ function ISMachineInfoWindow:update()
 		return
 	end
     
-    local luaObject = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(self.object:getSquare())
-    
-	if self.healthPercent ~= (self.object:getHealth() / self.object:getMaxHealth()) * 100
-            or self.isOn ~= luaObject.isOn 
-            or self.hasPower ~= luaObject.hasPower
-            or self.isWired ~= luaObject.isWired then
-		self:setObject(self.object)
-	end
-	self:setWidth(self.panel:getWidth())
-	self:setHeight(self:titleBarHeight() + self.panel:getHeight())
+    local cLuaObject = self.luaSystem:getLuaObjectOnSquare(self.object:getSquare())
+    if cLuaObject then
+        cLuaObject:updateFromIsoObject()
+        
+        --for k, v in pairs(cLuaObject) do
+        --    print("k=".. tostring(k) .. " v=" .. tostring(v))
+        --end
+        
+        if self.health ~= cLuaObject.health
+                or self.maxHealth ~= cLuaObject.maxHealth
+                or self.isOn ~= cLuaObject.isOn 
+                or self.hasPower ~= cLuaObject.hasPower
+                or self.isWired ~= cLuaObject.isWired then
+            self:setObject(self.object)
+        end
+        
+        self:setWidth(self.panel:getWidth())
+        self:setHeight(self:titleBarHeight() + self.panel:getHeight())
+    end
 end
-
-local DEFAULT_STATS = 
-    {
-        ["exterior"] = false,
-        ["isOn"] = false,
-        ["hasPower"] = false,
-        ["isWired"] = false,
-        ["powerUsage"] = 2,
-        ["minPowerUsage"] = 1,
-        ["maxPowerUsage"] = 4,
-        ["container"] = nil,
-    }
 
 function ISMachineInfoWindow:setObject(object)
     
 	self.object = object
     
     -- get object's translation name
-    local panelName = object:getName()
-    panelName = string.gsub(panelName, "Industrialization ", "Industrialization_")
-    panelName = "ContextMenu_" .. string.gsub(panelName, "%s+", "")
-    panelName = getText(panelName)
+    local objName = object:getName()
+    local objName2 = string.gsub(objName, "Industrialization ", "Industrialization_")
+    local translation = "ContextMenu_" .. string.gsub(objName2, "%s+", "")
+    local translationName = getText(translation)
     
-	self.panel:setName( panelName )
+	self.panel:setName( translationName )
 	self.panel:setTexture(object:getTextureName())
     
-    local luaObject = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(self.object:getSquare())
-    
-    self.isOn = (luaObject and luaObject.isOn ~= nil)         and luaObject.isOn      or object:getModData().isOn
-    self.hasPower = (luaObject and luaObject.hasPower ~= nil) and luaObject.hasPower  or object:getModData().hasPower
-    self.isWired = (luaObject and luaObject.isWired ~= nil)   and luaObject.isWired   or object:getModData().isWired
-    
-	self.panel.description = ISMachineInfoWindow.getRichText(object, true)
+    local cLuaObject = self.luaSystem:getLuaObjectOnSquare(self.object:getSquare())
+    if cLuaObject then
+        cLuaObject:updateFromIsoObject()
+        
+        self.health = (cLuaObject and cLuaObject.health ~= nil)         and cLuaObject.health    or object:getModData().health
+        self.maxHealth = (cLuaObject and cLuaObject.maxHealth ~= nil)   and cLuaObject.maxHealth or object:getModData().maxHealth
+        self.healthPercent = (health and maxHealth) and (self.health / self.maxHealth) * 100 or 0 --(object:getHealth() / object:getMaxHealth()) * 100
+        self.isOn = (cLuaObject and cLuaObject.isOn ~= nil)             and cLuaObject.isOn      or object:getModData().isOn
+        self.hasPower = (cLuaObject and cLuaObject.hasPower ~= nil)     and cLuaObject.hasPower  or object:getModData().hasPower
+        self.isWired = (cLuaObject and cLuaObject.isWired ~= nil)       and cLuaObject.isWired   or object:getModData().isWired
+        
+        self.panel.description = ISMachineInfoWindow.getRichText(object, true, self.luaSystem)
+    end
 end
 
-function ISMachineInfoWindow.getRichText(object, displayStats)
+function ISMachineInfoWindow.getRichText(object, displayStats, luaSystem)
 	local square = object:getSquare()
     
 	if not displayStats then
@@ -90,19 +93,26 @@ function ISMachineInfoWindow.getRichText(object, displayStats)
 		return text
 	end
     
-    local luaObject = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(square)
+    local health, maxHealth, healthPercent, isOn, hasPower, isWired
     
-    local healthPercent = (object:getHealth() / object:getMaxHealth()) * 100
-	local isOn = (luaObject and luaObject.isOn ~= nil)         and luaObject.isOn      or object:getModData().isOn
-    local hasPower = (luaObject and luaObject.hasPower ~= nil) and luaObject.hasPower  or object:getModData().hasPower
-    local isWired = (luaObject and luaObject.isWired ~= nil)   and luaObject.isWired   or object:getModData().isWired
+    local cLuaObject = luaSystem:getLuaObjectOnSquare(square)
+    if cLuaObject then
+        cLuaObject:updateFromIsoObject()
+        
+        health = (cLuaObject and cLuaObject.health ~= nil)          and cLuaObject.health    or object:getModData().health
+        maxHealth = (cLuaObject and cLuaObject.maxHealth ~= nil)    and cLuaObject.maxHealth or object:getModData().maxHealth
+        healthPercent = (health and maxHealth) and (health / maxHealth) * 100 or 0 --(object:getHealth() / object:getMaxHealth()) * 100
+        isOn = (cLuaObject and cLuaObject.isOn ~= nil)              and cLuaObject.isOn      or object:getModData().isOn
+        hasPower = (cLuaObject and cLuaObject.hasPower ~= nil)      and cLuaObject.hasPower  or object:getModData().hasPower
+        isWired = (cLuaObject and cLuaObject.isWired ~= nil)        and cLuaObject.isWired   or object:getModData().isWired
+    end
     
     -----
     local healthText = ""
     if healthPercent < 100 then
-        healthText = " <RGB:1,"..(healthPercent/100)..",0> "..tostring(object:getHealth()).."  <RGB:1,1,1>  / "..tostring(object:getMaxHealth())
+        healthText = " <RGB:1,"..(healthPercent/100)..",0> "..tostring(health).."  <RGB:1,1,1>  / "..tostring(maxHealth)
     elseif 100 <= healthPercent then
-        healthText = " <GREEN> "..tostring(object:getHealth()).."  <RGB:1,1,1>  / "..tostring(object:getMaxHealth())
+        healthText = " <GREEN> "..tostring(health).."  <RGB:1,1,1>  / "..tostring(maxHealth)
     end
     
     local isOnText = isOn and           " <GREEN> "..tostring(isOn).." <RGB:1,1,1> " or     " <RED> "..tostring(isOn).." <RGB:1,1,1> "
@@ -145,13 +155,14 @@ function ISMachineInfoWindow:close()
 	self:removeFromUIManager()
 end
 
-function ISMachineInfoWindow:new(x, y, character, object)
+function ISMachineInfoWindow:new(x, y, character, luaSystem, object)
 	local width = 320
 	local height = 16 + 64 + 16 + 16 + 16 + 16
 	local o = ISCollapsableWindow:new(x, y, width, height)
 	setmetatable(o, self)
 	self.__index = self
 	o.character = character
+    o.luaSystem = luaSystem
 	o.playerNum = character:getPlayerNum()
 	o.object = object
 	o:setResizable(false)

@@ -1,0 +1,11 @@
+Tooltip_PTBR = {
+    
+    ----- Tooltip (Portugues Brasil) -----
+    
+	-- Item tooltip
+	Tooltip_Industrialization_item_Damaged = "Danificado",
+    
+	-- Crafting tooltip
+	Tooltip_Industrialization_craft_AutoMinerDesc = "Uma maquina que pode minerar automaticamente para voce.",
+    
+}

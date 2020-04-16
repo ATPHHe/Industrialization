@@ -12,8 +12,8 @@ require "TimedActions/ISBaseTimedAction"
 ISActivateMachine = ISBaseTimedAction:derive("ISActivateMachine");
 
 function ISActivateMachine:isValid()
-    local luaObject = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(self.object:getSquare())
-	if self.activate == luaObject.isOn then return false end
+    local cLuaObject = self.luaSystem:getLuaObjectOnSquare(self.object:getSquare())
+	if self.activate == cLuaObject.isOn then return false end
 	--[[if self.activate and not self.object:isConnected() or
 			self.object:getHealth() <= self.luaObject.criticalHealth then
         return false
@@ -37,7 +37,7 @@ function ISActivateMachine:perform()
     --local maxHealth = self.object:getMaxHealth()
     --local health = self.object:getHealth()
     
-    local luaObject = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(self.object:getSquare())
+    local cLuaObject = self.luaSystem:getLuaObjectOnSquare(self.object:getSquare())
     
     local oX = self.object:getX()
     local oY = self.object:getY()
@@ -47,27 +47,10 @@ function ISActivateMachine:perform()
     
     -----
     
-    luaObject.isOn = self.activate
-    self.object:getModData().isOn = self.activate
-    
-    luaObject:DoAudioToggleOnOff()
-    luaObject:findPower()
-    
-    --
-    if luaObject.isOn and luaObject.hasPower then 
-        luaObject:DoAudioStart()
-        luaObject:DoAudioRunning()
-    else
-        if not luaObject.isOn and luaObject.hasPower then
-            luaObject:DoAudioStop()
-        end
-    end
+    cLuaObject.luaSystem:sendCommand(self.character, "set", { key="isOn", value=self.activate, x=oX, y=oY, z=oZ })
+    cLuaObject.luaSystem:sendCommand(self.character, "findPower", { param1=true, x=oX, y=oY, z=oZ })
+
     --]]
-    
-    -- Transmit Mod Data
-    if self.object then
-        self.object:transmitModData()
-    end
     
 	--[[if self.activate and self.object:getCondition() <= 50 and ZombRand(2) == 0 then
 		self.object:failToStart()
@@ -79,11 +62,12 @@ function ISActivateMachine:perform()
 	ISBaseTimedAction.perform(self);
 end
 
-function ISActivateMachine:new(character, object, activate, time)
+function ISActivateMachine:new(character, luaSystem, object, activate, time)
 	local o = {}
 	setmetatable(o, self)
 	self.__index = self
 	o.character = getSpecificPlayer(character);
+    o.luaSystem = luaSystem;
 	o.activate = activate;
 	o.object = object;
 	o.stopOnWalk = true;

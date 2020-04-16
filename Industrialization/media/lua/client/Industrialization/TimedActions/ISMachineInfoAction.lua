@@ -25,7 +25,7 @@ function ISMachineInfoAction:perform()
 		local y = getPlayerScreenTop(self.playerNum)
 		local w = getPlayerScreenWidth(self.playerNum)
 		local h = getPlayerScreenHeight(self.playerNum)
-		window = ISMachineInfoWindow:new(x + 70, y + 50, self.character, self.object)
+		window = ISMachineInfoWindow:new(x + 70, y + 50, self.character, self.luaSystem, self.object)
 		window:initialise()
 		window:addToUIManager()
 		ISMachineInfoWindow.windows[self.character] = window
@@ -43,7 +43,7 @@ function ISMachineInfoAction:perform()
 	ISBaseTimedAction.perform(self)
 end
 
-function ISMachineInfoAction:new(character, object)
+function ISMachineInfoAction:new(character, luaSystem, object)
 	local o = {}
 	setmetatable(o, self)
 	self.__index = self
@@ -51,6 +51,7 @@ function ISMachineInfoAction:new(character, object)
 	o.stopOnWalk = true
 	o.stopOnRun = true
 	o.character = character
+    o.luaSystem = luaSystem
 	o.playerNum = character:getPlayerNum()
 	o.object = object
 	return o

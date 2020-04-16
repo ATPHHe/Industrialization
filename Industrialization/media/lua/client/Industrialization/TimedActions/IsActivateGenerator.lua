@@ -20,60 +20,54 @@ function ISActivateGenerator:perform()
     
     local x, y, z = self.generator:getX(), self.generator:getY(), self.generator:getZ()
     local sq = getWorld():getCell():getOrCreateGridSquare(x, y, z)
-    local powerLuaObject = SPowerSourceSystem.instance:getLuaObjectAt(x, y, z)
-    if powerLuaObject then 
-        powerLuaObject.isOn = isActivated 
-    end
-    self.generator:getModData().isOn = isActivated
+    local cPowerLuaObject = CPowerSourceSystem.instance:getLuaObjectAt(x, y, z)
+    cPowerLuaObject:updateFromIsoObject()
     
+    if cPowerLuaObject then 
+        cPowerLuaObject.luaSystem:sendCommand(self.character, "set", { key="isOn", value=isActivated, x=x, y=y, z=z })
+    end
+    
+    --[[
     for x1 = x-1, x+1 do
         for y1 = y-1, y+1 do
             local sq = getWorld():getCell():getOrCreateGridSquare(x1, y1, z)
-            local luaObjects = 
+            local cLuaObjects = 
                 {
-                    [1] = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(sq),
+                    CMiningSystem.instance:getLuaObjectOnSquare(sq),
                 }
             
-            for k, luaObject in pairs(luaObjects) do
-                local isoObject
+            for k, cLuaObject in pairs(cLuaObjects) do
+                local cIsoObject
                 
                 --local objects = sq:getObjects()
-                if not luaObject then
+                if not cLuaObject then
                     local specialObjects = sq:getSpecialObjects()
                     for i=0, specialObjects:size()-1 do
                         local v = specialObjects:get(i)
                         if v:getName() == IsoSmallAutoMiner.FULL_NAME then
-                            isoObject = v;
+                            cIsoObject = v;
                         end
                     end
                 end
                 
-                if luaObject then
-                    isoObject = luaObject:getIsoObject()
+                if cLuaObject then
+                    cLuaObject:updateFromIsoObject()
                     
-                    luaObject.hasPower = isActivated
+                    cIsoObject = cLuaObject:getIsoObject()
                     
-                    -- Do Audio if possible
-                    if luaObject.isOn and not luaObject.isRunning and luaObject.hasPower then
-                        luaObject.isRunning = true
-                        luaObject:DoAudioStart()
-                        luaObject:DoAudioRunning()
-                    end
-                    
-                    if luaObject.isRunning and not luaObject.hasPower then
-                        luaObject.isRunning = false
-                        luaObject:DoAudioStop()
-                    end
+                    cLuaObject.luaSystem:sendCommand(self.character, "set", { key = "hasPower", value=isActivated, x=x1, y=y1, z=z})
+                    cLuaObject.luaSystem:sendCommand(self.character, "findPower", { param1=true, x=x1, y=y1, z=z })
                 end
                 
-                if isoObject then
-                    isoObject:getModData().hasPower = self.activate
-                    isoObject:transmitModData()
+                if cIsoObject then
+                    cIsoObject:getModData().hasPower = self.activate
+                    cIsoObject:transmitModData()
                 end
                 
             end
         end
     end
+    --]]
     
     -- needed to remove from queue / start next.
 	--ISBaseTimedAction.perform(self);
