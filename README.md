@@ -1,6 +1,9 @@
 # Industrialization
 WIP Mod for Project Zomboid
 
+version 1.03.1
+- Minor fixes to ISMachineInfoWindow.lua to prevent some errors.
+
 version 1.03
 - Created 4 new Frameworks for GlobalObject and GlobalObjectSystem to allow for less redundant coding and allow for more easier management of code.
     - SIndustrializationGlobalObject (sub-class derived from SGlobalObject)

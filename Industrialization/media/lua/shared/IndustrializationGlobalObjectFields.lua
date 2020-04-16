@@ -22,10 +22,10 @@ IndustrializationGlobalObjectFields.IsoGenerator =
 ------------------
 IndustrializationGlobalObjectFields.IndustrializationSmallAutoMiner = 
 {
-    
+    isPowerSource = false,
 }
 IndustrializationGlobalObjectFields.IndustrializationLargeAutoMiner = 
 {
-    
+    isPowerSource = false,
 }
 
