@@ -73,7 +73,7 @@ function ISMachineInfoWindow:setObject(object)
         
         self.health = (cLuaObject and cLuaObject.health ~= nil)         and cLuaObject.health    or object:getModData().health
         self.maxHealth = (cLuaObject and cLuaObject.maxHealth ~= nil)   and cLuaObject.maxHealth or object:getModData().maxHealth
-        self.healthPercent = (health and maxHealth) and (self.health / self.maxHealth) * 100 or 0 --(object:getHealth() / object:getMaxHealth()) * 100
+        self.healthPercent = (self.health and self.maxHealth) and (self.health / self.maxHealth) * 100 or 0 --(object:getHealth() / object:getMaxHealth()) * 100
         self.isOn = (cLuaObject and cLuaObject.isOn ~= nil)             and cLuaObject.isOn      or object:getModData().isOn
         self.hasPower = (cLuaObject and cLuaObject.hasPower ~= nil)     and cLuaObject.hasPower  or object:getModData().hasPower
         self.isWired = (cLuaObject and cLuaObject.isWired ~= nil)       and cLuaObject.isWired   or object:getModData().isWired
