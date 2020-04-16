@@ -15,11 +15,12 @@ if isClient() then return end
 IndustrializationLootTables = {}
 
 -- 
--- Every ten in-game minutes, each running machine should try to loot these items in their loot table.
+-- Every ten in-game minutes, each running machine should try to loot items from their loot table.
+-- All looted items will be stored into the machine's container until it is full.
 --
 -- NOTE: All loot calculations are currently handled by the server.
--- The small auto miner loot functions are handled in "SSmallAutoMinerSystem.lua".
---      - Example file: "..\Industrialization\media\lua\server\Industrialization\BuildCategories\Mining\SmallAutoMiner\SSmallAutoMinerSystem.lua"
+-- The loot functions are handled in "SIndustrializationGlobalObjectSystem.lua".
+--      - Example file: "..\Industrialization\media\lua\server\Industrialization\BuildCategories\SIndustrializationGlobalObjectSystem.lua"
 --
 --[[ 
 
@@ -36,21 +37,21 @@ IndustrializationLootTables.ObjectLootTable =
 --
 
 
---------------------------------
------ BuildCategory: Power -----
-
+-----------------
+----- Power -----
+-----------------
 -- Generic PowerSource
-IndustrializationLootTables.PowerSource = 
+IndustrializationLootTables.IsoGenerator = 
     {
         ["Base.UnusableMetal"] = { 0.0, 3, 0 }, 
         ["Base.UnusableWood"] = { 0.0, 3, 0 }, 
     }
 
----------------------------------
------ BuildCategory: Mining -----
-
+------------------
+----- Mining -----
+------------------
 -- Small Auto Miner
-IndustrializationLootTables.SmallAutoMiner = 
+IndustrializationLootTables.IndustrializationSmallAutoMiner = 
     {
         ["Base.ScrapMetal"] = { 10.0, 3, 0 }, 
         ["Base.MetalPipe"] = { 1.0, 3, 0 }, 
@@ -67,7 +68,7 @@ IndustrializationLootTables.SmallAutoMiner =
     }
 
 -- Large Auto Miner
-IndustrializationLootTables.LargeAutoMiner = 
+IndustrializationLootTables.IndustrializationLargeAutoMiner = 
     {
         ["Base.ScrapMetal"] = { 10.0, 3, 0 }, 
         ["Base.MetalPipe"] = { 1.0, 3, 0 }, 

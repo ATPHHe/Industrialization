@@ -12,12 +12,14 @@ require "TimedActions/ISBaseTimedAction"
 ISFixMachine = ISBaseTimedAction:derive("ISFixMachine");
 
 function ISFixMachine:isValid()
-    local luaObject = SSmallAutoMinerSystem.instance:getLuaObjectOnSquare(self.object:getSquare())
+    local cLuaObject = self.luaSystem:getLuaObjectOnSquare(self.object:getSquare())
+    cLuaObject:updateFromIsoObject()
+    
     local healthPercent = (self.object:getHealth() / self.object:getMaxHealth()) * 100
     
-    local isOn = (luaObject and luaObject.isOn ~= nil)         and luaObject.isOn      or self.object:getModData().isOn
-    --local hasPower = (luaObject and luaObject.hasPower ~= nil) and luaObject.hasPower  or self.object:getModData().hasPower
-    --local isWired = (luaObject and luaObject.isWired ~= nil)   and luaObject.isWired   or self.object:getModData().isWired
+    local isOn = (cLuaObject and cLuaObject.isOn ~= nil)           and cLuaObject.isOn      or self.object:getModData().isOn
+    --local hasPower = (cLuaObject and cLuaObject.hasPower ~= nil) and cLuaObject.hasPower  or self.object:getModData().hasPower
+    --local isWired = (cLuaObject and cLuaObject.isWired ~= nil)   and cLuaObject.isWired   or self.object:getModData().isWired
     
 	return self.object:getObjectIndex() ~= -1 and
 		not isOn and
@@ -62,11 +64,12 @@ function ISFixMachine:perform()
     
 end
 
-function ISFixMachine:new(character, object, time)
+function ISFixMachine:new(character, luaSystem, object, time)
 	local o = {}
 	setmetatable(o, self)
 	self.__index = self
 	o.character = character;
+    o.luaSystem = luaSystem;
 	o.object = object;
 	o.stopOnWalk = true;
 	o.stopOnRun = true;

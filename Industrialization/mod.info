@@ -2,6 +2,10 @@ name=Industrialization
 poster=poster.png
 id=Industrialization
 description=Allows you to build machines to automate some work.
-pack=IndustrializationAutoMiners1x
-pack=IndustrializationAutoMiners2x
+
+pack=IndustrializationMining1x
+pack=IndustrializationMining2x
+pack=IndustrializationRefining1x
+pack=IndustrializationRefining2x
+
 tiledef=industrialization_tiledefinitions1 801

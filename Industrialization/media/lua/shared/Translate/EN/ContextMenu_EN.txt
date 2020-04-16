@@ -21,6 +21,11 @@ ContextMenu_EN = {
     ContextMenu_Industrialization_SmallAutoMiner = "Small Auto Miner",
     ContextMenu_Industrialization_LargeAutoMiner = "Large Auto Miner",
     
+    -- BuildCategory: Refining
+    ContextMenu_Industrialization_BuildCategory_Refining = "Refining",
+    ContextMenu_Industrialization_SmallFurnace = "Small Furnace",
+    ContextMenu_Industrialization_LargeFurnace = "Large Furnace",
+    
     -- BuildCategory: Farming
     ContextMenu_Industrialization_BuildCategory_Farming = "Farming",
     

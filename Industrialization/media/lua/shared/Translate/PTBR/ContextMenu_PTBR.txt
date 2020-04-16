@@ -1,0 +1,35 @@
+ContextMenu_PTBR = {
+    
+    ----- ContextMenu (Portugues Brasil) -----
+    
+    -- Industrialization Menu
+    ContextMenu_Industrialization_Menu = "Industrialization Menu",
+    
+    -- BuildCategory: All
+    ContextMenu_Industrialization_BuildCategory_All = "Tudo",
+    ContextMenu_Industrialization_Fix = "Arrumar",
+    ContextMenu_Industrialization_Repair = "Reparar",
+    
+    -- BuildCategory: Power
+    ContextMenu_Industrialization_BuildCategory_Power = "Energia",
+    
+    -- BuildCategory: Wiring
+    ContextMenu_Industrialization_BuildCategory_Wiring = "Fiacao",
+    
+    -- BuildCategory: Mining
+    ContextMenu_Industrialization_BuildCategory_Mining = "Mineracao",
+    ContextMenu_Industrialization_SmallAutoMiner = "Auto Minerador Pequeno",
+    ContextMenu_Industrialization_LargeAutoMiner = "Auto Minerador Grande",
+        
+    -- BuildCategory: Refining
+    ContextMenu_Industrialization_BuildCategory_Refining = "Refining",
+    ContextMenu_Industrialization_SmallFurnace = "Small Furnace",
+    ContextMenu_Industrialization_LargeFurnace = "Large Furnace",
+    
+    -- BuildCategory: Farming
+    ContextMenu_Industrialization_BuildCategory_Farming = "Agricultura",
+    
+    -- BuildCategory: Turrets
+    ContextMenu_Industrialization_BuildCategory_Turrets = "Defesas",
+    
+}
