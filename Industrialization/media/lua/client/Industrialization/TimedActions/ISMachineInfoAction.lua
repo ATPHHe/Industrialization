@@ -19,7 +19,7 @@ end
 function ISMachineInfoAction:perform()
 	local window = ISMachineInfoWindow.windows[self.character]
 	if window then
-		window:setObject(self.object)
+		window:setObject(self.object, self.luaSystem)
 	else
 		local x = getPlayerScreenLeft(self.playerNum)
 		local y = getPlayerScreenTop(self.playerNum)
@@ -29,9 +29,12 @@ function ISMachineInfoAction:perform()
 		window:initialise()
 		window:addToUIManager()
 		ISMachineInfoWindow.windows[self.character] = window
+        
 		if self.character:getPlayerNum() == 0 then
-			ISLayoutManager.RegisterWindow('machine', ISCollapsableWindow, window)
+        
+			ISLayoutManager.RegisterWindow( 'machine' , ISCollapsableWindow, window)
 		end
+        
 	end
 	window:setVisible(true)
 	window:addToUIManager()

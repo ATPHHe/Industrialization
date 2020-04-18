@@ -20,7 +20,7 @@ ISWorldObjectContextMenu.clearFetch = function()
     
     ---------------------------------
     -- write modified function here
-    industrializationSmallAutoMiner = nil
+    industrializationObjects = {}
     
     ---------------------------------
 end
@@ -34,8 +34,8 @@ ISWorldObjectContextMenu.fetch = function(v, player, doSquare)
 	--local playerInv = playerObj:getInventory()
     --local square = v:getSquare()
     
-    if v:getName() == IsoSmallAutoMiner.FULL_NAME then
-        industrializationSmallAutoMiner = v;
+    if v:getModData().MOD_ID == IndustrializationUtilities.MOD_ID then
+        industrializationObjects[tostring(v:getModData().UID)] = v
     end
     ---------------------------------
     
@@ -48,49 +48,83 @@ local function createMenu(player, context, worldobjects, test)
     local playerObj = getSpecificPlayer(player)
 	local playerInv = playerObj:getInventory()
     
-    
-    
     -- SmallAutoMiner interaction
-    if industrializationSmallAutoMiner then
-        if test == true then return true; end
+    if industrializationObjects and type(industrializationObjects) == "table" then
         
-        local miningLuaSystem = CMiningSystem.instance
-        local cLuaObject = miningLuaSystem:getLuaObjectOnSquare(industrializationSmallAutoMiner:getSquare())
-        if cLuaObject then cLuaObject:updateFromIsoObject() end
-        
-        --local healthPercent = (object:getHealth() / object:getMaxHealth()) * 100
-        local isOn = (cLuaObject and cLuaObject.isOn ~= nil)           and cLuaObject.isOn      or industrializationSmallAutoMiner:getModData().isOn
-        --local hasPower = (cLuaObject and cLuaObject.hasPower ~= nil) and cLuaObject.hasPower  or industrializationSmallAutoMiner:getModData().hasPower
-        --local isWired = (cLuaObject and cLuaObject.isWired ~= nil)   and cLuaObject.isWired   or industrializationSmallAutoMiner:getModData().isWired
-        
-        local option = context:addOption(getText("ContextMenu_Industrialization_SmallAutoMiner").. " " ..getText("ContextMenu_Info"), 
-                                            worldobjects, ISWorldObjectContextMenu.onInfoMachine, industrializationSmallAutoMiner, player, miningLuaSystem);
-        
-        if playerObj:DistToSquared(industrializationSmallAutoMiner:getX() + 0.5, industrializationSmallAutoMiner:getY() + 0.5) < 2 * 2 then
-            local tooltip = ISWorldObjectContextMenu.addToolTip()
-            tooltip:setName(getText("ContextMenu_Industrialization_SmallAutoMiner"))
-            tooltip.description = ISMachineInfoWindow.getRichText(industrializationSmallAutoMiner, true, miningLuaSystem)
-            option.toolTip = tooltip
-        end
-        
-        if isOn then
-            context:addOption(getText("ContextMenu_Turn_Off"), worldobjects, ISWorldObjectContextMenu.onActivateMachine, false, industrializationSmallAutoMiner, player, miningLuaSystem);
-        else
-            context:addOption(getText("ContextMenu_Turn_On"), worldobjects, ISWorldObjectContextMenu.onActivateMachine, true, industrializationSmallAutoMiner, player, miningLuaSystem);
-        end
-        
-        if not isOn and industrializationSmallAutoMiner:getHealth() < industrializationSmallAutoMiner:getMaxHealth() then
+        for _, v in pairs(industrializationObjects) do
+            if test == true then return true; end
+            
+            local cLuaSystem
+            local cLuaObject
+            
+            local cLuaSystems = GlobalObjectSystems.getCObjectSystems()
+            
+            for k, system in pairs(cLuaSystems) do
+                cLuaSystem = system
+                cLuaObject = system:getLuaObjectOnSquare(v:getSquare())
+                if cLuaSystem and cLuaObject then break end;
+            end
+            
+            if cLuaSystem and not instanceof(v, "IsoGenerator") then
                 
-            local option = context:addOption(getText("ContextMenu_Industrialization_Repair").. " " ..getText("ContextMenu_Industrialization_SmallAutoMiner"), 
-                                            worldobjects, ISWorldObjectContextMenu.onFixMachine, industrializationSmallAutoMiner, player, miningLuaSystem);
-            if not playerObj:getInventory():contains("ElectronicsScrap") then
-                local tooltip = ISWorldObjectContextMenu.addToolTip();
-                option.notAvailable = true;
-                tooltip.description = getText("ContextMenu_GeneratorFixTT");
-                option.toolTip = tooltip;
+                if cLuaObject then
+                    cLuaObject:updateFromIsoObject()
+                    
+                    --local healthPercent = (object:getHealth() / object:getMaxHealth()) * 100
+                    local isOn = (cLuaObject and cLuaObject.isOn ~= nil)           and cLuaObject.isOn      or v:getModData().isOn
+                    --local hasPower = (cLuaObject and cLuaObject.hasPower ~= nil) and cLuaObject.hasPower  or v:getModData().hasPower
+                    --local isWired = (cLuaObject and cLuaObject.isWired ~= nil)   and cLuaObject.isWired   or v:getModData().isWired
+                    
+                    -- Get object's name translation.
+                    local objName = v:getName()
+                    local translation = ""
+                    if objName and objName ~= "" then
+                        translation = string.gsub(objName, "Industrialization", "Industrialization_")
+                        translation = string.gsub(translation, "%s+", "")
+                        translation = getText( "ContextMenu_"..translation )
+                    end
+                    
+                    -- Info Window context options.
+                    local option = context:addOption( translation .. " " ..getText("ContextMenu_Info"), 
+                                                        worldobjects, ISWorldObjectContextMenu.onInfoMachine, v, player, cLuaSystem);
+                    
+                    -- Get rich text tooltip when context is hovered over with mouse
+                    if playerObj:DistToSquared(v:getX() + 0.5, v:getY() + 0.5) < 2 * 2 then
+                        local tooltip = ISWorldObjectContextMenu.addToolTip()
+                        tooltip:setName( translation )
+                        tooltip.description = ISMachineInfoWindow.getRichText(v, true, cLuaSystem)
+                        option.toolTip = tooltip
+                    end
+                    
+                    -- Turn on / off machine context options
+                    if cLuaObject.isMiner or cLuaObject.isRefinery then
+                        if isOn then
+                            context:addOption(getText("ContextMenu_Turn_Off"), worldobjects, ISWorldObjectContextMenu.onActivateMachine, false, v, player, cLuaSystem);
+                        else
+                            context:addOption(getText("ContextMenu_Turn_On"), worldobjects, ISWorldObjectContextMenu.onActivateMachine, true, v, player, cLuaSystem);
+                        end
+                    end
+                    
+                    -- Fix Machine context options.
+                    if not isOn and v:getHealth() < v:getMaxHealth() then
+                            
+                        local option = context:addOption(getText("ContextMenu_Industrialization_Repair").. " " ..getText("ContextMenu_Industrialization_SmallAutoMiner"), 
+                                                        worldobjects, ISWorldObjectContextMenu.onFixMachine, v, player, cLuaSystem);
+                        if not playerObj:getInventory():contains("ElectronicsScrap") then
+                            local tooltip = ISWorldObjectContextMenu.addToolTip();
+                            option.notAvailable = true;
+                            tooltip.description = getText("ContextMenu_GeneratorFixTT");
+                            option.toolTip = tooltip;
+                        end
+                    end
+                    
+                    -- Refinery context options.
+                    
+                end
             end
             
         end
+        
     end
     
     --if generator then

@@ -2,10 +2,16 @@ Tooltip_EN = {
     
     ----- Tooltip (English) -----
     
-	-- Item tooltip
+    ------------------------
+	----- Item tooltip
 	Tooltip_Industrialization_item_Damaged = "Damaged",
     
-	-- Crafting tooltip
-	Tooltip_Industrialization_craft_AutoMinerDesc = "A machine that automatically can mine for you.",
+    ----------------------------
+	----- Crafting tooltip
+    -- Mining
+	Tooltip_Industrialization_craft_SmallAutoMinerDesc = "A machine that automatically can mine for you.",
+    
+    -- Refining
+    Tooltip_Industrialization_craft_SmallFurnaceDesc = "Can smelt ores and other smeltable objects.",
     
 }

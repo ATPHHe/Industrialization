@@ -40,12 +40,30 @@ IndustrializationGlobalObjectAudio.IndustrializationSmallAutoMiner =
 }
 IndustrializationGlobalObjectAudio.IndustrializationLargeAutoMiner = 
 {
-    audioRunning            = "",
-    audioToggle             = "",
-    audioStart              = "",
-    audioFailedToStart      = "",
-    audioStop               = "",
+    audioRunning            = "GeneratorLoop",
+    audioToggle             = "LightSwitch",
+    audioStart              = "GeneratorStarting",
+    audioFailedToStart      = "GeneratorFailedToStart",
+    audioStop               = "GeneratorStopping",
     audioDestroy            = "",
     audioExplode            = "",
 }
+--------------------
+----- Refining -----
+--------------------
+IndustrializationGlobalObjectAudio.IndustrializationSmallFurnace = 
+{
+    audioRunning            = "GeneratorLoop",
+    audioToggle             = "LightSwitch",
+    audioStart              = "GeneratorStarting",
+    audioFailedToStart      = "GeneratorFailedToStart",
+    audioStop               = "GeneratorStopping",
+    audioDestroy            = "",
+    audioExplode            = "",
+}
+
+
+
+
+
 

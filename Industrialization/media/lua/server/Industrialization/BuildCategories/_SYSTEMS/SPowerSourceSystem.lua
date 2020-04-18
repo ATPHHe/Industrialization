@@ -15,7 +15,7 @@ require "Industrialization/SIndustrializationGlobalObjectSystem"
 SPowerSourceSystem = SIndustrializationGlobalObjectSystem:derive("SPowerSourceSystem")
 
 function SPowerSourceSystem:new()
-	local o = SIndustrializationGlobalObjectSystem.new(self, "PowerSourceSystem")
+	local o = SIndustrializationGlobalObjectSystem.new(self, "Industrialization_PowerSourceSystem")
 	return o
 end
 

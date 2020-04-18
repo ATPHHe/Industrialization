@@ -1,0 +1,12 @@
+version = 0
+settings
+{
+    packFileName = IndustrializationRefining2x.pack
+    outputImageSize = 2048,2048
+    scale50 = false
+    inputImageDirectory
+    {
+        path = IndustrializationRefining2x.create
+        imagesAreTilesheets = false
+    }
+}

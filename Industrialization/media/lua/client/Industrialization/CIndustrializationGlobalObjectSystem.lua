@@ -12,6 +12,27 @@ require "Map/CGlobalObjectSystem"
 
 CIndustrializationGlobalObjectSystem = CGlobalObjectSystem:derive("CIndustrializationGlobalObjectSystem")
 
+
+
+function CIndustrializationGlobalObjectSystem:isValidIsoObject(isoObject)
+    if instanceof(isoObject, "IsoGenerator") then
+        return true
+    end
+    
+    local objectName = isoObject:getName()
+    if not objectName or objectName == "" then return false end
+    
+    for k, v in pairs(IndustrializationGlobalObjectFields) do
+        objectName = string.gsub(objectName, "%s+", "")
+        
+        if instanceof(isoObject, "IsoThumpable") and objectName == k then
+            return true
+        end
+    end
+    
+	return false
+end
+
 --[[
 function CIndustrializationGlobalObjectSystem:sendCommand(playerObj, command, args)
 	self.system:sendCommand(command, playerObj, args)
@@ -63,94 +84,131 @@ function CIndustrializationGlobalObjectSystem:DoAudioForceStop(UID)
     AudioTable.audioToggle[UID] = nil
 end
 
+----- -----
 
---[[
-CIndustrializationGlobalObjectSystem = CGlobalObjectSystem:derive("CIndustrializationGlobalObjectSystem")
+-- Register CIndustrializationGlobalObjectSystem
+--CGlobalObjectSystem.RegisterSystemClass(CIndustrializationGlobalObjectSystem)
 
-function CIndustrializationGlobalObjectSystem:noise(message)
-	if self.wantNoise then print(self.systemName..': '..message) end
+----- -----
+
+function CIndustrializationGlobalObjectSystem.DoSpecialTooltip(tooltipUI, square)
+    DoSpecialTooltip2(tooltipUI, square, CIndustrializationGlobalObjectSystem.instance)
 end
 
-function CIndustrializationGlobalObjectSystem:new(name)
-	local system = CGlobalObjects.registerSystem(name)
-	-- NOTE: The table for this Lua object is the same one the CIndustrializationGlobalObjectSystem
-	-- Java object created.  The Java class calls some of this Lua object's methods.
-	local o = system:getModData()
-	setmetatable(o, self)
-	self.__index = self
-	o.system = system
-	o.systemName = name
-	o.wantNoise = getDebug()
-	o:initSystem()
-	return o
-end
-
-function CIndustrializationGlobalObjectSystem:initSystem()
-end
-
-function CIndustrializationGlobalObjectSystem:isValidIsoObject(isoObject)
-	error "override this method"
-end
-
-function CIndustrializationGlobalObjectSystem:getIsoObjectOnSquare(square)
-	if not square then return nil end
-	for i=1,square:getObjects():size() do
-		local isoObject = square:getObjects():get(i-1)
-		if self:isValidIsoObject(isoObject) then
-			return isoObject
-		end
+function CIndustrializationGlobalObjectSystem.DoSpecialTooltip2(tooltipUI, square, luaSystem)
+	local playerObj = getSpecificPlayer(0)
+	if not playerObj or playerObj:getZ() ~= square:getZ() or
+			playerObj:DistToSquared(square:getX() + 0.5, square:getY() + 0.5) > 2 * 2 then
+		return
 	end
-	return nil
+	
+    -----
+    
+    --local luaSystem = CIndustrializationGlobalObjectSystem.instance
+    local isoObject = luaSystem:getIsoObjectOnSquare(square)
+	if not isoObject then return end
+    local cLuaObject = luaSystem:getLuaObjectOnSquare(square)
+    if not cLuaObject then return end
+    
+    -----
+    
+    local objName = isoObject:getName()
+    local translation = ""
+    if objName and objName ~= "" then
+        translation = string.gsub(objName, "Industrialization ", "Industrialization_")
+        translation = string.gsub(translation, "%s+", "")
+        translation = getText("ContextMenu_"..translation)
+    end
+
+	--
+    local smallFontHgt = getTextManager():getFontFromEnum(UIFont.Small):getLineHeight()
+	tooltipUI:setHeight(6 + smallFontHgt + 6 + smallFontHgt + 12 + 12 + 12)
+
+	local textX = 12
+	local textY = 6 + smallFontHgt + 6
+
+	local barX = textX + getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_invpanel_Remaining")) + 12 + 6
+	local barWid = 80
+	local barHgt = 4
+	local barY = textY + (smallFontHgt - barHgt) / 2 + 2
+    
+	tooltipUI:setWidth(barX + barWid + 12)
+	tooltipUI:DrawTextureScaledColor(nil, 0, 0, tooltipUI:getWidth(), tooltipUI:getHeight(), 0, 0, 0, 0.75)
+	tooltipUI:DrawTextCentre( translation , tooltipUI:getWidth() / 2, 6, 1, 1, 1, 1)
+    
+    local health, maxHealth, healthPercent, isOn, hasPower, isWired
+    
+    if cLuaObject then
+        cLuaObject:updateFromIsoObject()
+        
+        health = (cLuaObject and cLuaObject.health ~= nil)          and cLuaObject.health    or isoObject:getModData().health
+        maxHealth = (cLuaObject and cLuaObject.maxHealth ~= nil)    and cLuaObject.maxHealth or isoObject:getModData().maxHealth
+        healthPercent = (health and maxHealth) and (health / maxHealth) * 100 or 0 --(isoObject:getHealth() / isoObject:getMaxHealth()) * 100
+        isOn = (cLuaObject and cLuaObject.isOn ~= nil)              and cLuaObject.isOn      or isoObject:getModData().isOn
+        hasPower = (cLuaObject and cLuaObject.hasPower ~= nil)      and cLuaObject.hasPower  or isoObject:getModData().hasPower
+        isWired = (cLuaObject and cLuaObject.isWired ~= nil)        and cLuaObject.isWired   or isoObject:getModData().isWired
+    end
+    
+    -----
+    local healthText = ""
+    if healthPercent < 100 then
+        healthText = tostring(health).." / "..tostring(maxHealth)
+    elseif 100 <= healthPercent then
+        healthText = tostring(health).." / "..tostring(maxHealth)
+    end
+    
+    local isOnText = isOn and           ""..tostring(isOn).."" or     ""..tostring(isOn)..""
+    local hasPowerText = hasPower and   ""..tostring(hasPower).."" or ""..tostring(hasPower)..""
+    local isWiredText = isWired and     ""..tostring(isWired).."" or  ""..tostring(isWired)..""
+    
+    tooltipUI:DrawText(getText("IGUI_Industrialization_HealthPercent", string.format("%.0f", healthPercent)) , textX, textY, 1, 1, 1, 1)
+    --tooltipUI:DrawText(getText("IGUI_Industrialization_Health", healthText) , textX, textY, 1, 1, 1, 1)
+    textY = textY + smallFontHgt;
+    tooltipUI:DrawText(getText("IGUI_Industrialization_isOn", isOnText) , textX, textY, 1, 1, 1, 1)
+    textY = textY + smallFontHgt;
+    tooltipUI:DrawText(getText("IGUI_Industrialization_hasPower", hasPowerText) , textX, textY, 1, 1, 1, 1)
+    --text = text .. " <LINE> " .. getText("IGUI_Industrialization_isWired", isWiredText)
+    
+	local f = health / maxHealth
+	
+	if f < 0.0 then f = 0.0 end
+	if f > 1.0 then f = 1.0 end
+    local fg = { r= f >= 1.0 and 0.0 or 1.0 , g= f >= 1.0 and 0.6 or f, b=0.0, a=0.7 }
+    
+	local done = math.floor(barWid * f)
+	if f > 0 then done = math.max(done, 1) end
+	tooltipUI:DrawTextureScaledColor(nil, barX, barY, done, barHgt, fg.r, fg.g, fg.b, fg.a)
+	local bg = {r=0.15, g=0.15, b=0.15, a=1.0}
+	tooltipUI:DrawTextureScaledColor(nil, barX + done, barY, barWid - done, barHgt, bg.r, bg.g, bg.b, bg.a)
+    -----
+    
+    --]]
+    
+	--[[
+    tooltipUI:DrawText(getText("IGUI_invpanel_Remaining") .. ":", textX, textY, 1, 1, 1, 1)
+
+	local f = isoObject:getWaterAmount() / isoObject:getModData()["waterMax"]
+	local fg = { r=0.0, g=0.6, b=0.0, a=0.7 }
+	if f < 0.0 then f = 0.0 end
+	if f > 1.0 then f = 1.0 end
+	local done = math.floor(barWid * f)
+	if f > 0 then done = math.max(done, 1) end
+	tooltipUI:DrawTextureScaledColor(nil, barX, barY, done, barHgt, fg.r, fg.g, fg.b, fg.a)
+	local bg = {r=0.15, g=0.15, b=0.15, a=1.0}
+	tooltipUI:DrawTextureScaledColor(nil, barX + done, barY, barWid - done, barHgt, bg.r, bg.g, bg.b, bg.a)
+    --]]
 end
 
-function CIndustrializationGlobalObjectSystem:getIsoObjectAt(x, y, z)
-	local square = getCell():getGridSquare(x, y, z)
-	return self:getIsoObjectOnSquare(square)
+--Events.DoSpecialTooltip.Add(DoSpecialTooltip)
+
+
+-- Every in-game ten minutes, call this function using Events.EveryTenMinutes.
+local function EveryTenMinutes()
+    CIndustrializationGlobalObjectSystem.instance:sendCommand(getPlayer(), "ping", {})
+    return
 end
+--Events.EveryTenMinutes.Add(EveryTenMinutes)
 
-function CIndustrializationGlobalObjectSystem:newLuaObject(isoObject)
-	-- Return an object derived from CGlobalObject
-	error "override this method"
-end
 
-function CIndustrializationGlobalObjectSystem:getLuaObjectAt(x, y, z)
-	local isoObject = self:getIsoObjectAt(x, y, z)
-	if not isoObject then return nil end
-	-- The client doesn't have an SGlobalObjectSystem Java object, so create a
-	-- new luaObject every time.
-	return self:newLuaObject(isoObject)
-end
 
-function CIndustrializationGlobalObjectSystem:getLuaObjectOnSquare(square)
-	if not square then return nil end
-	return self:getLuaObjectAt(square:getX(), square:getY(), square:getZ())
-end
 
-function CIndustrializationGlobalObjectSystem:sendCommand(playerObj, command, args)
-	self.system:sendCommand(command, playerObj, args)
-end
-
-function CIndustrializationGlobalObjectSystem:OnServerCommand(command, args)
-	-- SGlobalObjectSystem:sendCommand() arguments are routed to this method
-	-- in both singleplayer *and* multiplayer.
-end
-
-local function OnCIndustrializationGlobalObjectSystemInit(luaClass)
-	luaClass.instance = luaClass:new()
-end
-
-function CIndustrializationGlobalObjectSystem.RegisterSystemClass(luaClass)
-	if luaClass == CIndustrializationGlobalObjectSystem then error "replace : with . before RegisterSystemClass" end
-
-	-- This is to support reloading a derived class file in the Lua debugger.
-	for i=1,CGlobalObjects.getSystemCount() do
-		local system = CGlobalObjects.getSystemByIndex(i-1)
-		if system:getModData().Type == luaClass.Type then
-			luaClass.instance = system:getModData()
-			return
-		end
-	end
-
-	Events.OnCGlobalObjectSystemInit.Add(function() OnCIndustrializationGlobalObjectSystemInit(luaClass) end)
-end
---]]

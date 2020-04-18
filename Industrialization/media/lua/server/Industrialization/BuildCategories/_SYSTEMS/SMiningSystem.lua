@@ -16,7 +16,7 @@ require "Industrialization/SIndustrializationGlobalObjectSystem"
 SMiningSystem = SIndustrializationGlobalObjectSystem:derive("SMiningSystem")
 
 function SMiningSystem:new()
-	local o = SIndustrializationGlobalObjectSystem.new(self, "IndustrailizationMiningSystem")
+	local o = SIndustrializationGlobalObjectSystem.new(self, "Industrialization_MiningSystem")
 	return o
 end
 

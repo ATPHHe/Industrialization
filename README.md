@@ -1,6 +1,9 @@
 # Industrialization
 WIP Mod for Project Zomboid
 
+version 1.04
+- Added furnace.
+
 version 1.03.1
 - Minor fixes to ISMachineInfoWindow.lua to prevent some errors.
 

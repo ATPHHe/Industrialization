@@ -54,13 +54,14 @@ function ISMachineInfoWindow:update()
     end
 end
 
-function ISMachineInfoWindow:setObject(object)
+function ISMachineInfoWindow:setObject(object, luaSystem)
     
 	self.object = object
+    if luaSystem then self.luaSystem = luaSystem end
     
     -- get object's translation name
     local objName = object:getName()
-    local objName2 = string.gsub(objName, "Industrialization ", "Industrialization_")
+    local objName2 = string.gsub(objName, "Industrialization", "Industrialization_")
     local translation = "ContextMenu_" .. string.gsub(objName2, "%s+", "")
     local translationName = getText(translation)
     

@@ -11,11 +11,27 @@
 if isClient() then return end
 
 require "Industrialization/BuildCategories/Mining/SmallAutoMiner/IsoSmallAutoMiner"
+--require "Industrialization/SIndustrializationGlobalObjectSystem"
 
-local function noise(message) SMiningSystem.instance:noise(message) end
+
+local function getSystem()
+    return SMiningSystem
+end
 
 
-local function CreateAutoMiner(sq, spriteName, health)
+local function noise(message) getSystem().instance:noise(message) end
+
+
+
+local function GetRandomHealth()
+    local health = IsoSmallAutoMiner.HEALTH_FLAT + (ZombRand(2) == 0 and IsoSmallAutoMiner.HEALTH_HANDY_TRAIT or 0)
+    for i, _ in ipairs(IsoSmallAutoMiner.HEALTH_PERKS) do
+        health = health + (ZombRand(10, 0) * IsoSmallAutoMiner.HEALTH_PER_PERK_LEVEL[i]);
+    end
+    return health
+end
+
+local function CreateIsoSmallAutoMiner(sq, spriteName, health)
     local obj = {}
 	obj.modData = IsoSmallAutoMiner.createAndGetModData()
     
@@ -26,7 +42,7 @@ local function CreateAutoMiner(sq, spriteName, health)
     --javaObject:setSprite(spriteName);
 	javaObject:setCanPassThrough(false)
 	javaObject:setCanBarricade(false)
-	javaObject:setThumpDmg(8)
+	javaObject:setThumpDmg(IsoSmallAutoMiner.SETTINGS.thumpDmg)
 	javaObject:setIsContainer(true)
 	javaObject:setIsDoor(false)
 	javaObject:setIsDoorFrame(false)
@@ -51,7 +67,7 @@ end
 local function ReplaceExistingObject(isoObject, health)
 	local sq = isoObject:getSquare()
 	noise('replacing isoObject at '..sq:getX()..','..sq:getY()..','..sq:getZ())
-	local javaObject = CreateAutoMiner(sq, isoObject:getSprite():getName(), health)
+	local javaObject = CreateIsoSmallAutoMiner(sq, isoObject:getSprite():getName(), health)
 	local index = isoObject:getObjectIndex()
 	sq:transmitRemoveItemFromSquare(isoObject)
 	sq:AddSpecialObject(javaObject, index)
@@ -60,9 +76,7 @@ local function ReplaceExistingObject(isoObject, health)
 end
 
 local function NewIsoSmallAutoMiner(isoObject)
-	local health = IsoSmallAutoMiner.HEALTH_FLAT 
-                    + ZombRand(0, IsoSmallAutoMiner.HEALTH_PER_LEVEL*10) 
-                    + (ZombRand(2) == 0 and IsoSmallAutoMiner.HEALTH_HANDY_TRAIT or 0)
+	local health = GetRandomHealth()
 	ReplaceExistingObject(isoObject, health)
 end
 
@@ -77,16 +91,19 @@ local function LoadObject(isoObject, health)
     --noise("loadobject=================")
 	local sq = isoObject:getSquare()
 	if instanceof(isoObject, "IsoThumpable") then
+        
+        --isoObject:setName( IsoSmallAutoMiner.FULL_NAME )
+        
 	else
 		isoObject = ReplaceExistingObject(isoObject, health)
 	end
-	SMiningSystem.instance:loadIsoObject(isoObject)
+    
+	getSystem().instance:loadIsoObject(isoObject)
+    
 end
 
 local function LoadIsoSmallAutoMiner(isoObject)
-	local health = IsoSmallAutoMiner.HEALTH_FLAT 
-                    + ZombRand(0, IsoSmallAutoMiner.HEALTH_PER_LEVEL*10) 
-                    + (ZombRand(2) == 0 and IsoSmallAutoMiner.HEALTH_HANDY_TRAIT or 0)
+    local health = GetRandomHealth()
 	LoadObject(isoObject, health)
 end
 

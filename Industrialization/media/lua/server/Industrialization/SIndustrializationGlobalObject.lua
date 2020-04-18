@@ -17,6 +17,7 @@ SIndustrializationGlobalObject = SGlobalObject:derive("SIndustrializationGlobalO
 -- These fields will be saved to the GlobalObject.
 SIndustrializationGlobalObject.DEFAULT_GO_FIELDS = 
     {
+        ["MOD_ID"] = IndustrializationUtilities.MOD_ID,
         ["UID"] = nil,
         ["name"] = nil,
         ["health"] = -1,
@@ -28,6 +29,8 @@ SIndustrializationGlobalObject.DEFAULT_GO_FIELDS =
         ["hasPower"] = false,
         ["isWired"] = false,
         ["isPowerSource"] = false,
+        ["isMiner"] = false,
+        ["isRefinery"] = false,
         ["powerSearchRadius"] = 1,
         ["fuel"] = 0,
         ["fuelUsage"] = 1,
@@ -46,27 +49,33 @@ SIndustrializationGlobalObject.TEMP_FIELDS =
 -- InitNew
 function SIndustrializationGlobalObject:initNew()
     --
-    for stat, value in pairs( self.DEFAULT_GO_FIELDS ) do
-        if value ~= nil then self[stat] = value end
+    for field, value in pairs( self.DEFAULT_GO_FIELDS ) do
+        if value ~= nil then self[field] = value end
     end
-    for stat, value in pairs( self.TEMP_FIELDS ) do
-        if value ~= nil then self[stat] = value end
+    for field, value in pairs( self.TEMP_FIELDS ) do
+        if value ~= nil then self[field] = value end
     end
     --]]
 end
 
 -- When some new GlobalObject variables are added to SIndustrializationGlobalObject.DEFAULT_STATS, 
 --      call this function for already existing Objects in the world to make sure they get the newly added variable stats.
-function SIndustrializationGlobalObject:initNewOnlyNilValues()
+function SIndustrializationGlobalObject:initNewOnlyNilValues(isoObject)
     --
-    for stat, value in pairs( self.DEFAULT_GO_FIELDS ) do 
-        if value ~= nil and self[stat] == nil then 
-            self[stat] = value 
+    for field, value in pairs( self.DEFAULT_GO_FIELDS ) do 
+        if value ~= nil and self[field] == nil then 
+            self[field] = value 
+        end
+        if isoObject:getModData()[field] == nil then
+            isoObject:getModData()[field] = self[field]
         end
     end
-    for stat, value in pairs( self.TEMP_FIELDS ) do 
-        if value ~= nil and self[stat] == nil then 
-            self[stat] = value 
+    for field, value in pairs( self.TEMP_FIELDS ) do 
+        if value ~= nil and self[field] == nil then 
+            self[field] = value 
+        end
+        if isoObject:getModData()[field] == nil then
+            isoObject:getModData()[field] = self[field]
         end
     end
 	--]]
@@ -88,6 +97,10 @@ function SIndustrializationGlobalObject:stateFromIsoObject(isoObject)
         self[k] = isoObject:getModData()[k]
     end
     
+    -- Get Mod ID
+    self.MOD_ID = IndustrializationUtilities.MOD_ID
+    isoObject:getModData().MOD_ID = IndustrializationUtilities.MOD_ID
+    
     -- Get Object's name
     self.name = isoObject:getName()
     isoObject:getModData().name = self.name
@@ -101,8 +114,11 @@ function SIndustrializationGlobalObject:stateFromIsoObject(isoObject)
     --objName = string.gsub(objName, "Industrialization ", "") -- Remove "Industrialization" from the objName
     objName = string.gsub(objName, "%s+", "") -- Remove all spaces from the objName
     
-    for k, v in pairs( IndustrializationGlobalObjectFields[ objName ] ) do
-        self[k] = v
+    if IndustrializationGlobalObjectFields[ objName ] then
+        for k, v in pairs( IndustrializationGlobalObjectFields[ objName ] ) do
+            self[k] = v
+            isoObject:getModData()[k] = self[k]
+        end
     end
     
     -- Override other fields.
@@ -145,7 +161,7 @@ function SIndustrializationGlobalObject:stateFromIsoObject(isoObject)
     -------------------------------
     
     -- Init nil values stored in this GlobalObject.
-    self:initNewOnlyNilValues()
+    self:initNewOnlyNilValues(isoObject)
     
     -- Update old values
     if self.fuelUsage ~= self.DEFAULT_GO_FIELDS.fuelUsage then 
@@ -186,6 +202,9 @@ function SIndustrializationGlobalObject:stateToIsoObject(isoObject)
         isoObject:getModData()[k] = self[k]
     end
     
+    -- Get Mod ID
+    self.MOD_ID = IndustrializationUtilities.MOD_ID
+    
     -- Get Object's name
     self.name = isoObject:getName()
     isoObject:getModData().name = self.name
@@ -199,8 +218,11 @@ function SIndustrializationGlobalObject:stateToIsoObject(isoObject)
     --objName = string.gsub(objName, "Industrialization ", "") -- Remove "Industrialization" from the objName
     objName = string.gsub(objName, "%s+", "") -- Remove all spaces from the objName
     
-    for k, v in pairs( IndustrializationGlobalObjectFields[ objName ] ) do
-        self[k] = v
+    if IndustrializationGlobalObjectFields[ objName ] then
+        for k, v in pairs( IndustrializationGlobalObjectFields[ objName ] ) do
+            self[k] = v
+            isoObject:getModData()[k] = self[k]
+        end
     end
     
     -- Override other fields.
@@ -248,7 +270,7 @@ function SIndustrializationGlobalObject:stateToIsoObject(isoObject)
     -------------------------------
     
     -- Init nil values stored in this GlobalObject.
-    self:initNewOnlyNilValues()
+    self:initNewOnlyNilValues(isoObject)
     
     -- Define a UID for LuaObject and ModData.
     self.objectIndex = isoObject:getObjectIndex()
@@ -266,8 +288,29 @@ function SIndustrializationGlobalObject:stateToIsoObject(isoObject)
     self:DoAudioRunning()
 end
 
+-- TODO: finish this once more sprites are added to the miners.
 function SIndustrializationGlobalObject:changeSprite()
-    error "override this method"
+	local isoObject = self:getIsoObject()
+	if not isoObject then return end
+	local spriteName = nil
+	--[[if self.waterMax == IsoSmallAutoMiner.smallWaterMax then
+		if self.waterAmount >= self.waterMax * 0.75 then
+			spriteName = "industrialization_auto_miners_01_0"
+		else
+			spriteName = "industrialization_auto_miners_01_0"
+		end
+	elseif self.waterMax == IsoSmallAutoMiner.largeWaterMax then
+		if self.waterAmount >= self.waterMax * 0.75 then
+			spriteName = "industrialization_auto_miners_01_0"
+		else
+			spriteName = "industrialization_auto_miners_01_0"
+		end
+	end]]
+	if spriteName and (not isoObject:getSprite() or spriteName ~= isoObject:getSprite():getName()) then
+		self:noise('sprite changed to '..spriteName..' at '..self.x..','..self.y..','..self.z)
+		isoObject:setSprite(spriteName)
+		isoObject:transmitUpdatedSpriteToClients()
+	end
 end
 
 function SIndustrializationGlobalObject:findPower(playAudioToggle)
@@ -299,11 +342,10 @@ function SIndustrializationGlobalObject:findPower(playAudioToggle)
                 end
                 
                 -- Find IsoObject PowerSource
-                local powerLuaObject = SPowerSourceSystem.instance:getLuaObjectAt(x1, y1, z)
-                if not hasPower and powerLuaObject and not specialObjects:isEmpty() then
+                if not hasPower and not specialObjects:isEmpty() then
                     for i=0, specialObjects:size()-1 do
                         local sO = specialObjects:get(i)
-                        if sO and sO:getModData().isPowerSource and powerLuaObject.isOn then
+                        if sO and sO:getModData().isPowerSource and sO:getModData().isOn then
                             --self:noise('HAS SQ: found working power source '.. sO:getObjectName() .. ' ' ..x1..','..y1..','..self.z)
                             hasPower = true
                         end
@@ -313,10 +355,10 @@ function SIndustrializationGlobalObject:findPower(playAudioToggle)
                 -- NIL SQUARE
                 
                 -- Find WorldObject PowerSource LuaObject
-                local powerLuaObject = SPowerSourceSystem.instance:getLuaObjectAt(x1, y1, z)
+                local sLuaObject = SPowerSourceSystem.instance:getLuaObjectAt(x1, y1, z)
                 
-                if not hasPower and powerLuaObject then
-                    if powerLuaObject.isOn then
+                if not hasPower and sLuaObject then
+                    if sLuaObject.isPowerSource and sLuaObject.isOn then
                         --self:noise('NIL SQ: found working power source at '..x1..','..y1..','..z)
                         hasPower = true
                     end
@@ -388,63 +430,4 @@ end
 
 
 
---[[
-SIndustrializationGlobalObject = SGlobalObject:derive("SIndustrializationGlobalObject")
 
-function SIndustrializationGlobalObject:noise(message)
-	self.luaSystem:noise(message)
-end
-
-function SIndustrializationGlobalObject:initNew()
-	error "override this method"
-end
-
-function SIndustrializationGlobalObject:stateFromIsoObject(isoObject)
-	-- This is called for IsoObjects that did not have a Lua object when loaded.
-	-- This can happen when the gos_NAME.bin file was deleted.
-	-- This is where you would init the fields of this Lua object from
-	-- isoObject:getModData().
-	error "override this method"
-end
-
-function SIndustrializationGlobalObject:stateToIsoObject(isoObject)
-	-- This is called for IsoObjects that already have a Lua object.
-	-- This is where you would synchronize the state of the IsoObject
-	-- with this Lua object's current state.
-	error "override this method"
-end
-
-function SIndustrializationGlobalObject:getIsoObject()
-	return self.luaSystem:getIsoObjectAt(self.x, self.y, self.z)
-end
-
-function SIndustrializationGlobalObject:getSquare()
-	return getCell():getGridSquare(self.x, self.y, self.z)
-end
-
-function SIndustrializationGlobalObject:removeIsoObject()
-	local square = self:getSquare()
-	local isoObject = self:getIsoObject()
-	if square and isoObject then
-		square:transmitRemoveItemFromSquare(isoObject)
-	end
-end
-
-function SIndustrializationGlobalObject:new(luaSystem, globalObject)
-	-- NOTE: The table for this object is the *same* one the GlobalObject.class
-	-- object created in Java.  Doing it this way means we don't have to worry
-	-- about syncing this Lua object's fields with the GlobalObject in Java.
-	-- Derived classes should not initialize any fields here that are saved,
-	-- because they are already loaded from disk when this method is called.
-	-- Override initNew() to initialize a brand-new SIndustrializationGlobalObject.
-	local o = globalObject:getModData()
-	setmetatable(o, self)
-	self.__index = self
-	o.luaSystem = luaSystem
-	o.globalObject = globalObject
-	o.x = globalObject:getX()
-	o.y = globalObject:getY()
-	o.z = globalObject:getZ()
-	return o
-end
---]]

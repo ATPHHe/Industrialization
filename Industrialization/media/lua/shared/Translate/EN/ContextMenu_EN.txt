@@ -7,6 +7,7 @@ ContextMenu_EN = {
     
     -- BuildCategory: All
     ContextMenu_Industrialization_BuildCategory_All = "All",
+    ContextMenu_Industrialization_IsoIndustrializationObject = "IsoIndustrializationObject",
     ContextMenu_Industrialization_Fix = "Fix",
     ContextMenu_Industrialization_Repair = "Repair",
     

@@ -20,11 +20,11 @@ function ISActivateGenerator:perform()
     
     local x, y, z = self.generator:getX(), self.generator:getY(), self.generator:getZ()
     local sq = getWorld():getCell():getOrCreateGridSquare(x, y, z)
-    local cPowerLuaObject = CPowerSourceSystem.instance:getLuaObjectAt(x, y, z)
-    cPowerLuaObject:updateFromIsoObject()
+    local cLuaObject = CPowerSourceSystem.instance:getLuaObjectAt(x, y, z)
     
-    if cPowerLuaObject then 
-        cPowerLuaObject.luaSystem:sendCommand(self.character, "set", { key="isOn", value=isActivated, x=x, y=y, z=z })
+    if cLuaObject then 
+        cLuaObject:updateFromIsoObject()
+        cLuaObject.luaSystem:sendCommand(self.character, "set", { key="isOn", value=isActivated, x=x, y=y, z=z })
     end
     
     --[[
@@ -33,7 +33,7 @@ function ISActivateGenerator:perform()
             local sq = getWorld():getCell():getOrCreateGridSquare(x1, y1, z)
             local cLuaObjects = 
                 {
-                    CMiningSystem.instance:getLuaObjectOnSquare(sq),
+                    SPowerSourceSystem.instance:getLuaObjectOnSquare(sq),
                 }
             
             for k, cLuaObject in pairs(cLuaObjects) do

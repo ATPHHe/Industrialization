@@ -46,42 +46,46 @@ Industrialization_ISBuildMenu.doBuildMenu = function(player, context, worldobjec
     -- Add some context options for building to "optionIndustrializationBuildMenu".
     --============================================
     ----- BuildCategory: Power -----
-    --------------------------
+    --------------------------------
     local optionBuildCategory = subMenu:addOption(
         getText("ContextMenu_Industrialization_BuildCategory_Power"), worldobjects, nil);
         
     --============================================
     ----- Category: Wiring -----
-    --------------------------
+    ----------------------------
     local optionBuildCategory = subMenu:addOption(
         getText("ContextMenu_Industrialization_BuildCategory_Wiring"), worldobjects, nil);
     
     --============================================
     ----- Category: Mining -----
-    ------------------------------
+    ----------------------------
     local optionBuildCategory = subMenu:addOption(
         getText("ContextMenu_Industrialization_BuildCategory_Mining"), worldobjects, nil);
     
     --------------- /// Small Auto Miner \\\ ---------------
-    local subMenuSmallAutoMiner = subMenu:getNew(subMenu);
-    context:addSubMenu(optionBuildCategory, subMenuSmallAutoMiner);
-    Industrialization_ISBuildMenu.buildAutoMinerMenu(subMenuSmallAutoMiner, optionBuildCategory, player, isoPlayer);
+    local subMenuIsoObj = subMenu:getNew(subMenu);
+    context:addSubMenu(optionBuildCategory, subMenuIsoObj);
+    Industrialization_ISBuildMenu.buildSmallAutoMinerMenu(subMenuIsoObj, optionBuildCategory, player, isoPlayer);
     --============================================
-    ----- Category: Mining -----
+    ----- Category: Refining -----
     ------------------------------
     local optionBuildCategory = subMenu:addOption(
         getText("ContextMenu_Industrialization_BuildCategory_Refining"), worldobjects, nil);
         
+    --------------- /// Small Furnace \\\ ---------------
+    local subMenuIsoObj = subMenu:getNew(subMenu);
+    context:addSubMenu(optionBuildCategory, subMenuIsoObj);
+    Industrialization_ISBuildMenu.buildSmallFurnaceMenu(subMenuIsoObj, optionBuildCategory, player, isoPlayer);
     --============================================
     ----- Category: Farming -----
-    -------------------------------
+    -----------------------------
     local optionBuildCategory = subMenu:addOption(
         getText("ContextMenu_Industrialization_BuildCategory_Farming"), worldobjects, nil);
     
     
     --============================================
     ----- Category: Turrets -----
-    -------------------------------
+    -----------------------------
     local optionBuildCategory = subMenu:addOption(
         getText("ContextMenu_Industrialization_BuildCategory_Turrets"), worldobjects, nil);
     
@@ -94,42 +98,87 @@ end
 ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ///
 ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== //
 ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== /
+------------------------------
+--      Build functions
+------------------------------
 
-Industrialization_ISBuildMenu.buildAutoMinerMenu = function(subMenu, option, player, isoPlayer)
+--
+Industrialization_ISBuildMenu.buildSmallAutoMinerMenu = function(subMenu, option, player, isoPlayer)
     
-    -- sprite
+    -- sprite/translation/other
     local sprite = IsoSmallAutoMiner.DEFAULT_SPRITE_NAME;
+    local translateName = getText( IsoSmallAutoMiner.TRANSLATE_NAME )
+    local translateTooltip = getText( IsoSmallAutoMiner.TRANSLATE_DESC )
     
     -- context menu option
-    local smallAutoMiner = subMenu:addOption(
-        getText("ContextMenu_Industrialization_SmallAutoMiner"), 
-        worldobjects, 
-        Industrialization_ISBuildMenu.onBuildAutoMiner, player, sprite);
+    local buildOption = subMenu:addOption(
+        translateName, 
+        worldobjects, Industrialization_ISBuildMenu.onBuildSmallAutoMiner, player, sprite);
         
     -- tooltip
-    local tooltip = ISBlacksmithMenu.addToolTip(smallAutoMiner, getText("ContextMenu_Industrialization_SmallAutoMiner"), sprite);
-    tooltip.description = getText("Tooltip_Industrialization_craft_AutoMinerDesc") .. " <LINE>" .. tooltip.description;
-    local isOk, tooltip = Industrialization_ISBuildMenu.checkElectricalMetalWeldingFurnitures(isoPlayer, tooltip, IsoSmallAutoMiner.REQUIRED_MATERIALS);
+    local tooltip = ISBlacksmithMenu.addToolTip(buildOption, translateName, sprite);
+    tooltip.description = translateTooltip .. " <LINE>" .. tooltip.description;
+    local isOk, tooltip = Industrialization_ISBuildMenu.checkIndustrialFurnitures(isoPlayer, tooltip, 
+                                                            IsoSmallAutoMiner.REQUIRED_MATERIALS, 
+                                                            IsoSmallAutoMiner.REQUIRED_SKILLS );
     
-    --
+    -- other
     if not isOk then 
-        --smallAutoMiner.onSelect = nil;
-        smallAutoMiner.notAvailable = true; 
+        --buildOption.onSelect = nil;
+        buildOption.notAvailable = true; 
     end
-    --ISBuildMenu.requireHammer(smallAutoMiner)
+    --ISBuildMenu.requireHammer(buildOption)
     
 end
 
 -- Create a auto miner and drag a ghost render of the object under the mouse.
-Industrialization_ISBuildMenu.onBuildAutoMiner = function(worldobjects, player, sprite)
-    --print("onBuildAutoMiner")
-    
-    -- ModData is all handled inside the "IsoSmallAutoMiner.lua" file now.
+Industrialization_ISBuildMenu.onBuildSmallAutoMiner = function(worldobjects, player, sprite)
+    -- ModData is all handled inside the "IsoIndustrializationObject.lua" file now.
     local obj = IsoSmallAutoMiner:new(player, sprite);
     
     -- Now allow the item to be dragged by mouse
     getCell():setDrag(obj, player);
 end
+
+----- ----- ----- ----- 
+
+Industrialization_ISBuildMenu.buildSmallFurnaceMenu = function(subMenu, option, player, isoPlayer)
+    
+    -- sprite/translation/other
+    local sprite = IsoSmallFurnace.DEFAULT_SPRITE_NAME;
+    local translateName = getText( IsoSmallFurnace.TRANSLATE_NAME )
+    local translateTooltip = getText( IsoSmallFurnace.TRANSLATE_DESC )
+    
+    -- context menu option
+    local buildOption = subMenu:addOption(
+        translateName, 
+        worldobjects, Industrialization_ISBuildMenu.onBuildSmallFurnace, player, sprite);
+        
+    -- tooltip
+    local tooltip = ISBlacksmithMenu.addToolTip(buildOption, translateName, sprite);
+    tooltip.description = translateTooltip .. " <LINE>" .. tooltip.description;
+    local isOk, tooltip = Industrialization_ISBuildMenu.checkIndustrialFurnitures(isoPlayer, tooltip, 
+                                                            IsoSmallFurnace.REQUIRED_MATERIALS, 
+                                                            IsoSmallFurnace.REQUIRED_SKILLS );
+    
+    -- other
+    if not isOk then 
+        --buildOption.onSelect = nil;
+        buildOption.notAvailable = true; 
+    end
+    --ISBuildMenu.requireHammer(buildOption)
+    
+end
+
+-- Create a auto miner and drag a ghost render of the object under the mouse.
+Industrialization_ISBuildMenu.onBuildSmallFurnace = function(worldobjects, player, sprite)
+    -- ModData is all handled inside the "IsoIndustrializationObject.lua" file now.
+    local obj = IsoSmallFurnace:new(player, sprite);
+    
+    -- Now allow the item to be dragged by mouse
+    getCell():setDrag(obj, player);
+end
+--]]
 
 -- =============================================================================================================== //////
 ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== /////
@@ -139,7 +188,7 @@ end
 ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== ----- ----- ----- ==== /
 
 -- Check whether you have the correct amount of materials for electrical metal welding furnitures/machines. (Returns: isOk, tooltip)
-Industrialization_ISBuildMenu.checkElectricalMetalWeldingFurnitures = function(isoPlayer, tooltip, REQUIRED_MATERIALS_TABLE)
+Industrialization_ISBuildMenu.checkIndustrialFurnitures = function(isoPlayer, tooltip, REQUIRED_MATERIALS_TABLE, REQUIRED_SKILLS_TABLE)
     
     ----- ----- ----- ----- 
     -- Show this in tooltip if BuildMenu Cheat is active.
@@ -236,16 +285,31 @@ Industrialization_ISBuildMenu.checkElectricalMetalWeldingFurnitures = function(i
         end
     end
     
+    tooltip.description = tooltip.description .. " <LINE> ";
+    
     ----- ----- ----- ----- 
     -- Skills/Perks
     
-    tooltip.description = tooltip.description .. " <LINE> ";
-    if isoPlayer:getPerkLevel(Perks.MetalWelding) < REQUIRED_MATERIALS_TABLE.skill then
-        tooltip.description = tooltip.description .. " <LINE> <RGB:1,0,0> " .. getText("IGUI_perks_MetalWelding") .. " " .. isoPlayer:getPerkLevel(Perks.MetalWelding) .. "/" .. REQUIRED_MATERIALS_TABLE.skill;
-        isOk = false;
-    else
-        tooltip.description = tooltip.description .. " <LINE> <RGB:1,1,1> " .. getText("IGUI_perks_MetalWelding") .. " " .. isoPlayer:getPerkLevel(Perks.MetalWelding) .. "/" .. REQUIRED_MATERIALS_TABLE.skill ;
+    for _, t in ipairs(REQUIRED_SKILLS_TABLE) do
+        if t.perkTranslation and t.perkTranslation ~= "" then
+            if isoPlayer:getPerkLevel(t.perk) < t.skillLevel then
+                tooltip.description = tooltip.description .. " <LINE> <RGB:1,0,0> " .. getText(t.perkTranslation) .. " " .. isoPlayer:getPerkLevel(t.perk) .. "/" .. t.skillLevel;
+                isOk = false;
+            else
+                tooltip.description = tooltip.description .. " <LINE> <RGB:1,1,1> " .. getText(t.perkTranslation) .. " " .. isoPlayer:getPerkLevel(t.perk) .. "/" .. t.skillLevel;
+            end
+        else
+            if isoPlayer:getPerkLevel(t.perk) < t.skillLevel then
+                tooltip.description = tooltip.description .. " <LINE> <RGB:1,0,0> " .. getText("IGUI_perks_"..tostring(t.perk)) .. " " .. isoPlayer:getPerkLevel(t.perk) .. "/" .. t.skillLevel;
+                isOk = false;
+            else
+                tooltip.description = tooltip.description .. " <LINE> <RGB:1,1,1> " .. getText("IGUI_perks_"..tostring(t.perk)) .. " " .. isoPlayer:getPerkLevel(t.perk) .. "/" .. t.skillLevel;
+            end
+        end
     end
+    
+    ----- ----- ----- ----- 
+    
     if isOk then
         ISBlacksmithMenu.canDoSomething = true;
     end

@@ -2,10 +2,16 @@ Tooltip_PTBR = {
     
     ----- Tooltip (Portugues Brasil) -----
     
-	-- Item tooltip
+    ------------------------
+	----- Item tooltip
 	Tooltip_Industrialization_item_Damaged = "Danificado",
     
-	-- Crafting tooltip
-	Tooltip_Industrialization_craft_AutoMinerDesc = "Uma maquina que pode minerar automaticamente para voce.",
+    ----------------------------
+	----- Crafting tooltip
+    -- Mining
+	Tooltip_Industrialization_craft_SmallAutoMinerDesc = "Uma maquina que pode minerar automaticamente para voce.",
+    
+    -- Refining
+    Tooltip_Industrialization_craft_SmallFurnaceDesc = "Can smelt ores and other smeltable objects.",
     
 }

@@ -15,17 +15,38 @@ IndustrializationGlobalObjectFields = {}
 -----------------
 IndustrializationGlobalObjectFields.IsoGenerator = 
 {
-    isPowerSource = true,
+    isPowerSource           = true,
+    isMiner                 = false,
+    isRefinery              = false,
 }
 ------------------
 ----- Mining -----
 ------------------
 IndustrializationGlobalObjectFields.IndustrializationSmallAutoMiner = 
 {
-    isPowerSource = false,
+    isPowerSource           = false,
+    isMiner                 = true,
+    isRefinery              = false,
 }
 IndustrializationGlobalObjectFields.IndustrializationLargeAutoMiner = 
 {
-    isPowerSource = false,
+    isPowerSource           = false,
+    isMiner                 = true,
+    isRefinery              = false,
 }
+--------------------
+----- Refining -----
+--------------------
+IndustrializationGlobalObjectFields.IndustrializationSmallFurnace = 
+{
+    isPowerSource           = false,
+    isMiner                 = false,
+    isRefinery              = true,
+}
+
+
+
+
+
+
 

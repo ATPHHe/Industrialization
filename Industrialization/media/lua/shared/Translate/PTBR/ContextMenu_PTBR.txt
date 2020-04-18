@@ -7,6 +7,7 @@ ContextMenu_PTBR = {
     
     -- BuildCategory: All
     ContextMenu_Industrialization_BuildCategory_All = "Tudo",
+    ContextMenu_Industrialization_IsoIndustrializationObject = "IsoIndustrializationObject",
     ContextMenu_Industrialization_Fix = "Arrumar",
     ContextMenu_Industrialization_Repair = "Reparar",
     
